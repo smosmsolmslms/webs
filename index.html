@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gemini CEO List Generator</title>
+<style>
+  :root {
+    --primary: #174ea6;
+    --accent: #ffffff;
+    --card-bg: #f5f8ff;
+    --shadow: 0 4px 24px rgba(23,78,166,0.08);
+    --radius: 12px;
+  }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    background: var(--accent);
+    color: #222;
+  }
+  .splash {
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    background: linear-gradient(135deg, var(--primary) 60%, #2a5bd7 100%);
+    color: var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s;
+  }
+  .splash img {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    box-shadow: var(--shadow);
+    object-fit: cover;
+    margin-bottom: 2rem;
+    border: 4px solid var(--accent);
+    background: var(--accent);
+  }
+  .splash h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    color: #fff;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .splash button {
+    background: var(--accent);
+    color: var(--primary);
+    border: none;
+    padding: 0.75rem 2rem;
+    font-size: 1.2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 2rem;
+    transition: background 0.2s;
+  }
+  .splash button:hover {
+    background: #e3eefe;
+  }
+  .main-content {
+    max-width: 700px;
+    margin: 3rem auto 2rem auto;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    display: none;
+  }
+  h1 {
+    color: var(--primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+  }
+  label, p {
+    font-size: 1.1rem;
+    color: #333;
+  }
+  input, button, textarea {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid #dbe6f7;
+    margin-bottom: 1rem;
+    font-family: inherit;
+  }
+  input, textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+    margin-bottom: 1rem;
+  }
+  button {
+    background: var(--primary);
+    color: var(--accent);
+    border: none;
+    margin-left: 0;
+    margin-right: 1rem;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  button:disabled {
+    background: #b3c6e6;
+    cursor: not-allowed;
+  }
+  button:hover:not(:disabled) {
+    background: #2a5bd7;
+  }
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  pre, .gemini-response {
+    background: #fff;
+    padding: 1rem;
+    border-radius: var(--radius);
+    max-height: 500px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 600px) {
+    .main-content {
+      margin: 1rem;
+      padding: 1rem;
+    }
+    .card {
+      padding: 1rem;
+    }
+    h1 {
+      font-size: 1.3rem;
+    }
+    .splash h1 {
+      font-size: 1.3rem;
+      color: #fff;
+      text-align: center;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .splash img {
+      width: 100px;
+      height: 100px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="splash" id="splash">
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSduUfor1LkYPdf4M_H0I4OFAf0SdfwtxzCRw&s" alt="Dr. Shambhu Pokhrel" />
+  <h1>Welcome to Dr. Shambhu Pokhrel’s AI Assistant</h1>
+  <button onclick="enterSite()">Enter</button>
+</div>
+
+<div class="main-content" id="mainContent">
+  <h1>Gemini CEO List Generator</h1>
+  <div class="card">
+    <label for="topic"><b>Generate CEO List</b></label>
+    <p>Enter your topic (e.g., <code>Top 500 CEOs in Gulf</code>):</p>
+    <input id="topic" type="text" placeholder="Top 500 CEOs in Gulf" />
+    <button onclick="generateList()">Generate</button>
+    <div style="margin-top:1rem;">
+      <button id="downloadBtn" onclick="downloadList()" disabled>Download as TXT</button>
+      <button id="copyBtn" onclick="copyList()" disabled>Copy to Clipboard</button>
+    </div>
+    <h2>Output:</h2>
+    <pre id="output">Enter a topic and click Generate.</pre>
+  </div>
+  <div class="card">
+    <label for="geminiPrompt"><b>Ask any question</b></label>
+    <textarea id="geminiPrompt" rows="2" placeholder="Type your question here..."></textarea>
+    <button onclick="askGeminiPrompt()" id="askBtn">Ask Gemini</button>
+    <div class="gemini-response" id="geminiResponse">Gemini’s response will appear here.</div>
+  </div>
+</div>
+
+<script>
+  // Splash screen logic
+  function enterSite() {
+    document.getElementById('splash').style.opacity = 0;
+    setTimeout(() => {
+      document.getElementById('splash').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+    }, 500);
+  }
+
+  const API_KEY = "AIzaSyDQ8VILzZZrhl67Or02RO88Ap77oaNAX_w"; // <<< REPLACE with your key
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+
+  async function askGemini(prompt) {
+    const body = {
+      contents: [
+        {
+          parts: [
+            { text: prompt }
+          ]
+        }
+      ]
+    };
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`API Error ${response.status}: ${text}`);
+    }
+
+    const json = await response.json();
+    try {
+      return json.candidates[0].content.parts[0].text;
+    } catch {
+      throw new Error("Unexpected response format");
+    }
+  }
+
+  function buildPrompt(topic, count = 500) {
+    const actualCount = count + 50;
+    return `
+Your task is to generate a list of the top ${actualCount} individuals based on the following topic:
+
+Topic: ${topic}
+
+Please include only real, verifiable names without extra description or sentences. Return the list in a clean plain text numbered list format like this:
+
+1. Full Name
+2. Full Name
+...
+${actualCount}. Full Name
+`.trim();
+  }
+
+  function extractNames(text) {
+    const lines = text.trim().split('\n');
+    const names = [];
+    for (let line of lines) {
+      // Remove bullet points, extra whitespace, and handle lines like "1) Name" or "1- Name"
+      let cleaned = line.replace(/^[\s\-•*]+/, '').replace(/^(\d+)[\.\)\-]?\s*/, '');
+      // Remove trailing commas, periods, and extra spaces
+      cleaned = cleaned.replace(/[,\.]+$/, '').trim();
+      // Skip empty or obviously invalid lines
+      if (
+        cleaned &&
+        cleaned.split(' ').length <= 6 &&
+        /^[A-Za-z\s\.\'\-]+$/.test(cleaned) &&
+        !['please', 'note', 'this', 'the', 'output', 'list', 'names', 'individuals', 'full name'].some(w => cleaned.toLowerCase().startsWith(w))
+      ) {
+        names.push(cleaned);
+      }
+    }
+    // Remove duplicates and blank entries
+    return [...new Set(names.filter(n => n.length > 2))];
+  }
+
+  let lastNames = []; // Store last generated names for download/copy
+
+  function buildGoogleSearchUrl(name) {
+    const query = `site:linkedin.com/in "${name}" ("Dubai" OR "Abu Dhabi" OR "UAE" OR "Saudi Arabia" OR "Qatar" OR "Kuwait" OR "Bahrain" OR "Oman") CEO`;
+    return "https://www.google.com/search?q=" + encodeURIComponent(query);
+  }
+
+  function renderOutput(names) {
+    if (!names.length) return "❌ No valid names extracted.";
+    let html = `<b>✅ Extracted ${names.length} names.</b><br><br>`;
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i];
+      const url = buildGoogleSearchUrl(name);
+      html += `${i + 1}. Name: <b>${name}</b><br>&nbsp;&nbsp;<a href="${url}" target="_blank">Google Search Link</a><br><br>`;
+    }
+    return html;
+  }
+
+  async function generateList() {
+    const output = document.getElementById('output');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) {
+      alert('Please enter a topic');
+      return;
+    }
+
+    output.textContent = "⏳ Asking Gemini to generate names...";
+    downloadBtn.disabled = true;
+    copyBtn.disabled = true;
+    try {
+      const prompt = buildPrompt(topic, 500);
+      const responseText = await askGemini(prompt);
+
+      const names = extractNames(responseText);
+      lastNames = names;
+      if (!names.length) {
+        output.textContent = "❌ No valid names extracted.";
+        return;
+      }
+
+      output.innerHTML = renderOutput(names);
+      downloadBtn.disabled = false;
+      copyBtn.disabled = false;
+    } catch (e) {
+      output.textContent = `❌ Error: ${e.message}`;
+    }
+  }
+
+  function downloadList() {
+    if (!lastNames.length) return;
+    let txt = "";
+    for (let i = 0; i < lastNames.length; i++) {
+      const name = lastNames[i];
+      const url = buildGoogleSearchUrl(name);
+      txt += `${i + 1}. Name: ${name}\n   Google Search URL: ${url}\n\n`;
+    }
+    const blob = new Blob([txt], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "ceo_list.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function copyList() {
+    if (!lastNames.length) return;
+    let txt = "";
+    for (let i = 0; i < lastNames.length; i++) {
+      const name = lastNames[i];
+      const url = buildGoogleSearchUrl(name);
+      txt += `${i + 1}. Name: ${name}\n   Google Search URL: ${url}\n\n`;
+    }
+    navigator.clipboard.writeText(txt)
+      .then(() => alert("Copied to clipboard!"))
+      .catch(() => alert("Failed to copy."));
+  }
+
+  // Gemini Q&A section
+  async function askGeminiPrompt() {
+    const prompt = document.getElementById('geminiPrompt').value.trim();
+    const responseDiv = document.getElementById('geminiResponse');
+    const askBtn = document.getElementById('askBtn');
+    if (!prompt) {
+      alert('Please enter a question');
+      return;
+    }
+    responseDiv.textContent = "⏳ Gemini is thinking...";
+    askBtn.disabled = true;
+    try {
+      const responseText = await askGemini(prompt);
+      responseDiv.textContent = responseText;
+    } catch (e) {
+      responseDiv.textContent = `❌ Error: ${e.message}`;
+    }
+    askBtn.disabled = false;
+  }
+</script>
+
+</body>
+</html>
